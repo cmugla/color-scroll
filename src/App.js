@@ -17,9 +17,21 @@ class App extends Component {
   }
 
   handleScroll = () => {
+    let r, g, b
+    const { scrollY } = window
+
+    r = 255 - (scrollY - 255 * 2)
+    g = 255 - (scrollY - 255)
+    b = 255 - scrollY
+
+
     this.setState({
       bgColor: {
-        backgroundColor: `rgb(${window.scrollY > 255 * 2 && window.scrollY <= 255 * 3 ? 255 - (window.scrollY - 255 * 2) : 255},${window.scrollY > 255 && window.scrollY <= 255 * 2 ? 255 - (window.scrollY - 255) : window.scrollY <= 255 ? 255 : 0},${window.scrollY <= 255 ? 255 - window.scrollY : 0})`
+        backgroundColor: `rgb(
+          ${scrollY > 255 * 2 && scrollY <= 255 * 3 ? r : scrollY > 255 * 3 ? 0 : 255},
+          ${scrollY > 255 && scrollY <= 255 * 2 ? g : scrollY > 255 * 2 ? 0 : 255},
+          ${scrollY < 255 ? b : 0}
+        )`
       }
     })
   }
