@@ -5,7 +5,8 @@ class App extends Component {
   state={
     r: 255,
     g: 255,
-    b: 255
+    b: 255,
+    order: [0, 1, 2]
   }
 
   componentDidMount = () => {
@@ -84,24 +85,41 @@ class App extends Component {
     return `rgb(${r}, ${g}, ${b})`
   }
 
-  handleScroll = () => {
-    let { scrollY } = window
-    let howMany = Math.floor(scrollY / 255)
-    let isThird = howMany > 0 && howMany % 3 === 0
-    // let isEven = howMany > 0 && (howMany / 3) % 2 === 0
-
-    const rDelta = 255 * 2
-    const gDelta = 255 * 1
-    const bDelta = 255 * 0
-
-    const rMax = 255 * 3
-    const gMax = 255 * 2
-    const bMax = 255 * 1
+  handleClick = e => {
+    let newOrder = this.state.order.map((each, i) => {
+      if (i === this.state.order.length - 1) {
+        return this.state.order[0]
+      }
+      return this.state.order[i + 1]
+    })
     
+    this.setState({
+      order: newOrder
+    })
+  }
+
+  handleScroll = () => {
+    const { scrollY } = window
+    const { order } = this.state
+    const rDelta = 255 * order[2]
+    const gDelta = 255 * order[1]
+    const bDelta = 255 * order[0]
+
+    const rMax = 255 * (order[2] + 1)
+    const gMax = 255 * (order[1] + 1)
+    const bMax = 255 * (order[0] + 1)
+    
+    let rMinMax = [rDelta, rMax]
+    let gMinMax = [gDelta, gMax]
+    let bMinMax = [bDelta, bMax]
+
+    console.log('order', order)
+    console.log('Max r, g, b', rMax, gMax, bMax)
+
     let r, g, b
-    r = scrollY > gMax ? (scrollY <= rMax ? 255 - (scrollY - rDelta) : 0) : 255
-    g = scrollY > bMax ? (scrollY <= gMax ? 255 - (scrollY - gDelta) : 0) : 255
-    b = scrollY <= bMax ? (255 - scrollY) : 0
+    r = scrollY > rMinMax[0] ? (scrollY <= rMinMax[1] ? 255 - (scrollY - rDelta) : 0) : 255
+    g = scrollY > gMinMax[0] ? (scrollY <= gMinMax[1] ? 255 - (scrollY - gDelta) : 0) : 255
+    b = scrollY > bMinMax[0] ? (scrollY <= bMinMax[1] ? 255 - (scrollY - bDelta) : 0) : 255
 
     this.setState({
       r, g, b
@@ -113,8 +131,7 @@ class App extends Component {
 
     return {
       backgroundColor: `rgb(${r}, ${g}, ${b})`,
-      // color: `complement(rgb(${r}, ${g}, ${b}))`
-      color: this.RGBToComplimentary(r, g, b)
+      color: this.RGBToComplimentary(r, g, b),
     }
   }
 
@@ -125,10 +142,10 @@ class App extends Component {
 
     return (
       <div className="App" style={bgColor}>
-        <h1>
-          bg: {bgColor.backgroundColor}<br/>
-          color: {bgColor.color}
-        </h1>
+        <div className="container">
+          <h1>scroll</h1>
+          <button style={{ border: `2px solid ${bgColor.color}`, color: bgColor.color }} onClick={this.handleClick}>Switch Order</button>
+        </div>
       </div>
     );
   }
